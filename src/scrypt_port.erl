@@ -17,19 +17,13 @@ scrypt(Passwd, Salt, N, R, P, Buflen) ->
 
 -record(state, {port}).
 
--ifdef(TEST).
 priv_dir() ->
     case code:priv_dir(scrypt) of
-        {error, bad_name} -> "../priv"; %% relative to .../.eunit directory.
-        D -> D
+        {error, bad_name} ->
+            filename:join(filename:dirname(filename:dirname(code:which(?MODULE))), "priv");
+        D ->
+            D
     end.
--else.
-priv_dir() ->
-    case code:priv_dir(scrypt) of
-        {error, bad_name} -> "./priv";
-        D -> D
-    end.
--endif.
 
 init([]) ->
     {ok, #state{port = open_port({spawn, priv_dir() ++ "/scrypt"},
