@@ -15,7 +15,7 @@ compile: deps
 
 clean:
 	./rebar clean
-#	rm -rf ebin
+	rm -rf ebin
 
 veryclean: clean
 	rm -rf rel
