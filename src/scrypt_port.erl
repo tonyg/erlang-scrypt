@@ -10,12 +10,13 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+-spec scrypt(binary(), binary(), pos_integer(), pos_integer(), pos_integer(), pos_integer()) -> binary().
 scrypt(Passwd, Salt, N, R, P, Buflen) ->
     gen_server:call(?MODULE, {scrypt, Passwd, Salt, N, R, P, Buflen}, infinity).
 
 %%---------------------------------------------------------------------------
 
--record(state, {port}).
+-record(state, {port :: port()}).
 
 priv_dir() ->
     case code:priv_dir(scrypt) of
