@@ -1,0 +1,4 @@
+scratch/
+.eunit/
+priv/scrypt
+erl_crash.dump
