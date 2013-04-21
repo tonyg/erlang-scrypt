@@ -11,7 +11,7 @@ start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 scrypt(Passwd, Salt, N, R, P, Buflen) ->
-    gen_server:call(?MODULE, {scrypt, Passwd, Salt, N, R, P, Buflen}).
+    gen_server:call(?MODULE, {scrypt, Passwd, Salt, N, R, P, Buflen}, infinity).
 
 %%---------------------------------------------------------------------------
 
