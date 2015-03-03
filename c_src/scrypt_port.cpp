@@ -3,7 +3,12 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <errno.h>
+
+#ifdef _WIN32
+#include <Winsock2.h>
+#else
 #include <arpa/inet.h> /* ntohl, htonl */
+#endif
 
 #include "crypto_scrypt.h"
 
@@ -94,7 +99,7 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
-    if (crypto_scrypt(passwd, passwdlen, salt, saltlen, N, r, p, buf, buflen)) {
+    if (crypto_scrypt((const uint8_t*)passwd, passwdlen, (const uint8_t*)salt, saltlen, N, r, p, (uint8_t*)buf, buflen)) {
       fprintf(stderr, "crypto_scrypt failed\n");
       exit(1);
     }

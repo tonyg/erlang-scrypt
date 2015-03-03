@@ -3,3 +3,8 @@ scratch/
 priv/scrypt
 erl_crash.dump
 ebin/
+*.swp
+*.pdb
+.rebar/
+c_src/*.o
+priv/
