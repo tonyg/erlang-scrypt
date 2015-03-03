@@ -1,16 +1,50 @@
--module(scrypt).
+-module(erlscrypt).
 
--export([start/0, scrypt/6]).
+-behaviour(application).
+-behaviour(supervisor).
+
+% application callbacks
+-export([start/2, stop/1]).
+
+% supervisor callbacks
+-export([init/1]).
+
+% shell interface
+-export([start/0, stop/0]).
+
+% API
+-export([scrypt/6]).
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
 -endif.
 
-start() ->
-    application:start(scrypt).
+start() -> application:start(?MODULE).
+stop() -> application:stop(?MODULE).
 
 scrypt(Passwd, Salt, N, R, P, Buflen) ->
     scrypt_port:scrypt(Passwd, Salt, N, R, P, Buflen).
+
+%% ----------------------------------------------------------------------------
+%% Applciation callbacks
+%% ----------------------------------------------------------------------------
+start(_StartType, _StartArgs) ->
+    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+
+stop(_State) ->
+    ok.
+%% ----------------------------------------------------------------------------
+
+%% ----------------------------------------------------------------------------
+%% Supervisor callback
+%% ----------------------------------------------------------------------------
+init([]) ->
+    {ok, { {one_for_one, 5, 10},
+           [
+            {scrypt, {scrypt_port, start_link, []},
+             permanent, 5000, worker, [scrypt_port]}
+           ]} }.
+%% ----------------------------------------------------------------------------
 
 -ifdef(TEST).
 

@@ -1,0 +1,13 @@
+%% -*- erlang -*-
+{application, erlscrypt,
+ [
+  {description, "Erlang port driver for Colin Percival's scrypt."},
+  {vsn, "1.1.6"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { erlscrypt, []}},
+  {env, []}
+ ]}.
