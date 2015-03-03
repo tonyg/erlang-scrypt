@@ -1,4 +1,4 @@
-# erlang-scrypt: Port driver for Colin Percival's "scrypt" function
+# erlscrypt: Port driver for Colin Percival's "scrypt" function
 
 [scrypt](http://www.tarsnap.com/scrypt.html), a Password-Based Key
 Derivation Function from Colin Percival, from [version
@@ -9,34 +9,11 @@ For general background on what `scrypt` is, and why it's useful, see
 and [Colin Percival's page on
 scrypt](http://www.tarsnap.com/scrypt.html).
 
-## Depending on this library from rebar
-
-Include it as a dep:
-
-    {deps_dir, ["deps"]}.
-    {deps,
-     [
-      ...
-      {scrypt, "1.1.6:0",
-       {git, "git://github.com/tonyg/erlang-scrypt.git", "master"}}
-     ]}.
-
 ## Using the library
 
-Include it in your application's `applications` key in its `.app` file:
+The only entry point is `erlscrypt:scrypt/6`.
 
-    {application, your_app,
-     [
-      {applications, [
-                      ...
-                      scrypt
-                     ]},
-      ...
-     ]}.
-
-The only entry point is `scrypt:scrypt/6`.
-
-## scrypt:scrypt(Passwd, Salt, N, R, P, Buflen)
+## ```erlscrypt:scrypt(Passwd, Salt, N, R, P, Buflen)```
 
 Both `Passwd` and `Salt` must be binaries. `N`, `R`, and `P` control
 the complexity of the password-derivation process. `Buflen` is the
