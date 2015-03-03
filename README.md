@@ -25,7 +25,7 @@ paper](http://www.tarsnap.com/scrypt/scrypt.pdf).
 Example:
 
     Eshell V5.9.1  (abort with ^G)
-    1> scrypt:scrypt(<<"pleaseletmein">>, <<"SodiumChloride">>, 16384, 8, 1, 64).
+    1> erlscrypt:scrypt(<<"pleaseletmein">>, <<"SodiumChloride">>, 16384, 8, 1, 64).
     <<112,35,189,203,58,253,115,72,70,28,6,205,129,253,56,235,
       253,168,251,186,144,79,142,62,169,181,67,246,84,...>>
 
