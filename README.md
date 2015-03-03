@@ -11,9 +11,12 @@ scrypt](http://www.tarsnap.com/scrypt.html).
 
 ## Using the library
 
-The only entry point is `erlscrypt:scrypt/6`.
+The entry points are `erlscrypt:scrypt/6` and `erlscrypt:scrypt/7`.
 
-##erlscrypt:scrypt(Passwd, Salt, N, R, P, Buflen)
+##erlscrypt:scrypt([nif], Passwd, Salt, N, R, P, Buflen)
+
+Atom `nif` can be passed as optional first parameter to gain some marginal speed over
+port.
 
 Both `Passwd` and `Salt` must be binaries. `N`, `R`, and `P` control
 the complexity of the password-derivation process. `Buflen` is the
@@ -24,8 +27,10 @@ paper](http://www.tarsnap.com/scrypt/scrypt.pdf).
 
 Example:
 
-    Eshell V5.9.1  (abort with ^G)
     1> erlscrypt:scrypt(<<"pleaseletmein">>, <<"SodiumChloride">>, 16384, 8, 1, 64).
+    <<112,35,189,203,58,253,115,72,70,28,6,205,129,253,56,235,
+      253,168,251,186,144,79,142,62,169,181,67,246,84,...>>
+    2> erlscrypt:scrypt(nif,<<"pleaseletmein">>, <<"SodiumChloride">>, 16384, 8, 1, 64).
     <<112,35,189,203,58,253,115,72,70,28,6,205,129,253,56,235,
       253,168,251,186,144,79,142,62,169,181,67,246,84,...>>
 
