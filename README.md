@@ -13,7 +13,7 @@ scrypt](http://www.tarsnap.com/scrypt.html).
 
 The only entry point is `erlscrypt:scrypt/6`.
 
-## ```erlscrypt:scrypt(Passwd, Salt, N, R, P, Buflen)```
+##erlscrypt:scrypt(Passwd, Salt, N, R, P, Buflen)
 
 Both `Passwd` and `Salt` must be binaries. `N`, `R`, and `P` control
 the complexity of the password-derivation process. `Buflen` is the
