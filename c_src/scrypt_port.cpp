@@ -77,6 +77,7 @@ int main(int argc, char *argv[]) {
     void *buf;
 
     packetlen = read_uint32(); /* ignored for now */
+    packetlen = packetlen;     /* to supress warning */
 
     passwdlen = read_uint32();
     saltlen = read_uint32();
