@@ -18,16 +18,8 @@ scrypt(Passwd, Salt, N, R, P, Buflen) ->
 
 -record(state, {port :: port()}).
 
-priv_dir() ->
-    case code:priv_dir(scrypt) of
-        {error, bad_name} ->
-            filename:join(filename:dirname(filename:dirname(code:which(?MODULE))), "priv");
-        D ->
-            D
-    end.
-
 init([]) ->
-    {ok, #state{port = open_port({spawn, priv_dir() ++ "/scrypt"},
+    {ok, #state{port = open_port({spawn, erlscrypt:priv_dir() ++ "/scrypt"},
                                  [{packet, 4}, binary, use_stdio])}}.
 
 terminate(_Reason, _State = #state{port = Port}) ->

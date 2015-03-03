@@ -12,8 +12,11 @@
 % shell interface
 -export([start/0, stop/0]).
 
-% API
--export([scrypt/6]).
+% External API
+-export([scrypt/6, scrypt/7]).
+
+% Internal library API
+-export([priv_dir/0]).
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
@@ -24,6 +27,19 @@ stop() -> application:stop(?MODULE).
 
 scrypt(Passwd, Salt, N, R, P, Buflen) ->
     scrypt_port:scrypt(Passwd, Salt, N, R, P, Buflen).
+
+scrypt(nif, Passwd, Salt, N, R, P, Buflen) ->
+    scrypt_nif:scrypt(Passwd, Salt, N, R, P, Buflen).
+
+priv_dir() ->
+    case code:priv_dir(?MODULE) of
+        {error, bad_name} ->
+            filename:join(
+              filename:dirname(
+                filename:dirname(
+                  code:which(?MODULE))), "priv");
+        D -> D
+    end.
 
 %% ----------------------------------------------------------------------------
 %% Applciation callbacks
