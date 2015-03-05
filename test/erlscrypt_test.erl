@@ -55,25 +55,25 @@ startup_test() ->
     ok = application:start(erlscrypt),
     ?assertNot(undefined == whereis(erlscrypt)).
 
-nif_test_() -> test_internal(nif).
-port_test_() -> test_internal(port).
+scrypt_test_() ->
+    {inparallel, test_internal(port) ++ test_internal(nif)}.
 
 test_internal(Type) ->
-    {inparallel,
-     [{list_to_binary([Passwd," / ",Salt]),
-       test_body_fun(Type, Id, Passwd, Salt,
-                     if Type == nif -> [nif|Params]; true -> Params end,
-                     Result)}
-      || {Id,{[Passwd,Salt|_] = Params, Result}}
-         <- lists:zip(lists:seq(1,length(?TESTS)),?TESTS)]
-    }.
+    [{list_to_binary(io_lib:format("[~p] ~p. '~s'/'~s'",
+                                   [Type,Id,Passwd,Salt])),
+      test_body_fun(Type, Id, Passwd, Salt,
+                    if Type == nif -> [nif|Params]; true -> Params end,
+                    Result)}
+     || {Id,{[Passwd,Salt|_] = Params, Result}}
+        <- lists:zip(lists:seq(1,length(?TESTS)),?TESTS)].
 
 test_body_fun(Type, Id, Passwd, Salt, Params, Result) ->
     Test = list_to_binary(io_lib:format("[~p] ~p. '~s'/'~s'",
                                         [Type,Id,Passwd,Salt])),
     fun() ->
+            ?debugFmt("> ~s", [Test]),
             {Time, Rslt} = timer:tc(erlscrypt, scrypt, Params),
-            ?debugFmt("~s in ~.2f ms", [Test, Time / 1000]),
+            ?debugFmt("< ~s in ~.2f ms", [Test, Time / 1000]),
             ?assertEqual(Result, Rslt)
             % ?assert(Time < 2000000)
     end.

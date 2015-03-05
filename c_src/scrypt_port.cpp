@@ -10,7 +10,7 @@
 #include <arpa/inet.h> /* ntohl, htonl */
 #endif
 
-#include "crypto_scrypt.h"
+#include "scrypt.h"
 
 static uint32_t read_uint32(void) {
   uint32_t v = 0;

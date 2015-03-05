@@ -29,18 +29,71 @@
 #ifndef _SYSENDIAN_H_
 #define _SYSENDIAN_H_
 
-/* If we don't have be64enc, the <sys/endian.h> we have isn't usable. */
-#if !HAVE_DECL_BE64ENC
-#undef HAVE_SYS_ENDIAN_H
-#endif
-
-#ifdef HAVE_SYS_ENDIAN_H
-
-#include <sys/endian.h>
-
-#else
-
 #include <stdint.h>
+
+#ifdef USE_MACRO
+
+#define be32dec(p) \
+	((uint32_t)((p)[3]) + ((uint32_t)((p)[2]) << 8) +\
+     ((uint32_t)((p)[1]) << 16) + ((uint32_t)((p)[0]) << 24))
+
+#define be32enc(p, x) \
+{\
+    (p)[3] = (x) & 0xff;\
+	(p)[2] = ((x) >> 8) & 0xff;\
+	(p)[1] = ((x) >> 16) & 0xff;\
+	(p)[0] = ((x) >> 24) & 0xff;\
+}
+
+#define be64dec(p) \
+    (((uint64_t)((p)[7])        + ((uint64_t)((p)[6]) << 8)  +\
+     ((uint64_t)((p)[5]) << 16) + ((uint64_t)((p)[4]) << 24) +\
+     ((uint64_t)((p)[3]) << 32) + ((uint64_t)((p)[2]) << 40) +\
+     ((uint64_t)((p)[1]) << 48) + ((uint64_t)((p)[0]) << 56))
+
+#define be64enc(p, x)\
+{\
+	(p)[7] =  (x)        & 0xff;\
+	(p)[6] = ((x) >>  8) & 0xff;\
+	(p)[5] = ((x) >> 16) & 0xff;\
+	(p)[4] = ((x) >> 24) & 0xff;\
+	(p)[3] = ((x) >> 32) & 0xff;\
+	(p)[2] = ((x) >> 40) & 0xff;\
+	(p)[1] = ((x) >> 48) & 0xff;\
+	(p)[0] = ((x) >> 56) & 0xff;\
+}
+
+#define le32dec(p)\
+    ((uint32_t)((p)[0])        + ((uint32_t)((p)[1]) << 8) +\
+    ((uint32_t)((p)[2]) << 16) + ((uint32_t)((p)[3]) << 24))
+
+#define le32enc(p, x)\
+{\
+	(p)[0] =  (x)        & 0xff;\
+	(p)[1] = ((x) >>  8) & 0xff;\
+	(p)[2] = ((x) >> 16) & 0xff;\
+	(p)[3] = ((x) >> 24) & 0xff;\
+}
+
+#define le64dec(p)\
+    ((uint64_t)((p)[0])        + ((uint64_t)((p)[1]) <<  8) +\
+    ((uint64_t)((p)[2]) << 16) + ((uint64_t)((p)[3]) << 24) +\
+    ((uint64_t)((p)[4]) << 32) + ((uint64_t)((p)[5]) << 40) +\
+    ((uint64_t)((p)[6]) << 48) + ((uint64_t)((p)[7]) << 56))
+
+#define le64enc(p, x)\
+{\
+	(p)[0] =  (x)        & 0xff;\
+	(p)[1] = ((x) >>  8) & 0xff;\
+	(p)[2] = ((x) >> 16) & 0xff;\
+	(p)[3] = ((x) >> 24) & 0xff;\
+	(p)[4] = ((x) >> 32) & 0xff;\
+	(p)[5] = ((x) >> 40) & 0xff;\
+	(p)[6] = ((x) >> 48) & 0xff;\
+	(p)[7] = ((x) >> 56) & 0xff;\
+}
+
+#else /* use inline */
 
 static inline uint32_t
 be32dec(const void *pp)
@@ -133,6 +186,7 @@ le64enc(void *pp, uint64_t x)
 	p[6] = (x >> 48) & 0xff;
 	p[7] = (x >> 56) & 0xff;
 }
-#endif /* !HAVE_SYS_ENDIAN_H */
+
+#endif /* USE_MACRO */
 
 #endif /* !_SYSENDIAN_H_ */
