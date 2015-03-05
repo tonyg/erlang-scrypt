@@ -57,63 +57,108 @@ static void write_uint32(uint32_t v) {
   }
 }
 
-int main(int argc, char *argv[]) {
-  uint32_t buffer_limit = 131072; /* 128k */
+typedef struct {
+    char *passwd;
+    char *salt;
+	struct {
+		uint32_t packetlen;
+		uint32_t passwdlen;
+		uint32_t saltlen;
+		uint32_t N;
+		uint32_t r;
+		uint32_t p;
+		uint32_t buflen;
+	} hdr;
+} Cmd;
 
-  if (argc > 1) {
-    buffer_limit = atol(argv[1]);
-  }
-
-  while (1) {
+static Cmd *read_cmd()
+{
+    Cmd * cmd;
     uint32_t packetlen;
-    uint32_t passwdlen;
-    uint32_t saltlen;
-    uint32_t N;
-    uint32_t r;
-    uint32_t p;
-    uint32_t buflen;
-    void *passwd;
-    void *salt;
-    void *buf;
+    size_t n;
+	size_t offset = 2 * sizeof(char*) + sizeof(uint32_t);
 
-    packetlen = read_uint32(); /* ignored for now */
-    packetlen = packetlen;     /* to supress warning */
+	n = fread(&packetlen, sizeof(uint32_t), 1, stdin);
+    switch (n) {
+        case 0: exit(0);
+        case 1: break;
+        default:
+			perror("fread");
+			exit(1);
+	}
 
-    passwdlen = read_uint32();
-    saltlen = read_uint32();
-    N = read_uint32();
-    r = read_uint32();
-    p = read_uint32();
-    buflen = read_uint32();
+    packetlen = ntohl(packetlen);
 
-    if ((passwdlen > buffer_limit) || (saltlen > buffer_limit) || (buflen > buffer_limit)) {
-      fprintf(stderr, "buffer limit exceeded\n");
-      exit(1);
+    cmd = (Cmd*)calloc(1, packetlen + offset);
+	cmd->passwd = ((char*)cmd + 2 * sizeof(char*)) + sizeof(cmd->hdr);
+
+	n = fread((char*)cmd + offset, 1, packetlen, stdin);
+	if (n != packetlen) {
+		perror("fread");
+		exit(1);
+	}
+
+    cmd->hdr.packetlen = packetlen;
+    cmd->hdr.passwdlen = ntohl(cmd->hdr.passwdlen);
+    cmd->hdr.saltlen = ntohl(cmd->hdr.saltlen);
+    cmd->hdr.N = ntohl(cmd->hdr.N);
+    cmd->hdr.r = ntohl(cmd->hdr.r);
+    cmd->hdr.p = ntohl(cmd->hdr.p);
+    cmd->hdr.buflen = ntohl(cmd->hdr.buflen);
+	cmd->salt = cmd->passwd + cmd->hdr.passwdlen;
+
+    return cmd;
+}
+
+int main(int argc, char *argv[])
+{
+    Cmd * c = NULL;
+	void * buf = NULL;
+    uint32_t buffer_limit = 131072; /* 128k */
+
+    if (argc > 1) {
+        buffer_limit = atol(argv[1]);
     }
 
-    passwd = read_buf(passwdlen, "passwd");
-    salt = read_buf(saltlen, "salt");
+    while (1) {
+		c = read_cmd();
+		if (c == NULL) {
+			fprintf(stderr, "command read failed\n");
+			exit(1);
+		}
 
-    buf = calloc(1, buflen);
-    if (buf == NULL) {
-      fprintf(stderr, "buffer allocation for buf failed\n");
-      exit(1);
-    }
+		if ((c->hdr.passwdlen > buffer_limit) || (c->hdr.saltlen > buffer_limit) || (c->hdr.buflen > buffer_limit)) {
+			fprintf(stderr, "buffer limit exceeded\n");
+			exit(1);
+		}
 
-    if (crypto_scrypt((const uint8_t*)passwd, passwdlen, (const uint8_t*)salt, saltlen, N, r, p, (uint8_t*)buf, buflen)) {
-      fprintf(stderr, "crypto_scrypt failed\n");
-      exit(1);
-    }
+		buf = calloc(1, c->hdr.buflen);
+		if (buf == NULL) {
+			fprintf(stderr, "buffer allocation for buf failed\n");
+			exit(1);
+		}
 
-    write_uint32(buflen);
-    if (fwrite(buf, buflen, 1, stdout) != 1) {
-      perror("fwrite buf");
-      exit(1);
-    }
-    fflush(stdout);
+		if (crypto_scrypt((const uint8_t*)c->passwd, c->hdr.passwdlen,
+						  (const uint8_t*)c->salt, c->hdr.saltlen,
+						  c->hdr.N, c->hdr.r, c->hdr.p,
+						  (uint8_t*)buf, c->hdr.buflen)) {
+			fprintf(stderr, "crypto_scrypt failed\n");
+			exit(1);
+		}
 
-    free(passwd);
-    free(salt);
-    free(buf);
-  }
+		write_uint32(c->hdr.buflen);
+
+		if (fwrite(buf, c->hdr.buflen, 1, stdout) != 1) {
+			perror("fwrite buf");
+			exit(1);
+		}
+
+		fflush(stdout);
+
+		free(c);
+		free(buf);
+
+		c = NULL;
+		buf = NULL;
+	}
 }
