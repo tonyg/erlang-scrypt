@@ -71,6 +71,18 @@ typedef struct {
 	} hdr;
 } Cmd;
 
+void read_exact(char *buf, size_t length)
+{
+	size_t n;
+	size_t got = 0;
+
+	do {
+		if ((n = fread(buf + got, 1, length - got, stdin)) <= 0)
+			exit(1);
+		got += n;
+	} while (got < length);
+}
+
 static Cmd *read_cmd()
 {
     Cmd * cmd;
@@ -92,11 +104,7 @@ static Cmd *read_cmd()
     cmd = (Cmd*)calloc(1, packetlen + offset);
 	cmd->passwd = ((char*)cmd + 2 * sizeof(char*)) + sizeof(cmd->hdr);
 
-	n = fread((char*)cmd + offset, 1, packetlen, stdin);
-	if (n != packetlen) {
-		perror("fread");
-		exit(1);
-	}
+	read_exact((char*)cmd+offset, packetlen);
 
     cmd->hdr.packetlen = packetlen;
     cmd->hdr.passwdlen = ntohl(cmd->hdr.passwdlen);
@@ -110,11 +118,21 @@ static Cmd *read_cmd()
     return cmd;
 }
 
+#ifdef _WIN32
+#include <io.h>
+#include <fcntl.h>
+#endif
+
 int main(int argc, char *argv[])
 {
     Cmd * c = NULL;
 	void * buf = NULL;
     uint32_t buffer_limit = 131072; /* 128k */
+
+	#ifdef _WIN32
+		_setmode( _fileno( stdout ), _O_BINARY );
+		_setmode( _fileno( stdin  ), _O_BINARY );
+	#endif
 
     if (argc > 1) {
         buffer_limit = atol(argv[1]);
