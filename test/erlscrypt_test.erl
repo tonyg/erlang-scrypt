@@ -56,7 +56,9 @@ startup_test() ->
     ?assertNot(undefined == whereis(erlscrypt)).
 
 scrypt_test_() ->
-    {inparallel, test_internal(port) ++ test_internal(nif)}.
+    {timeout,
+     20,
+     {inparallel, test_internal(port) ++ test_internal(nif)}}.
 
 test_internal(Type) ->
     [{list_to_binary(io_lib:format("[~p] ~p. '~s'/'~s'",
