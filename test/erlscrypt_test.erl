@@ -56,14 +56,16 @@ startup_test() ->
     ?assertNot(undefined == whereis(erlscrypt)).
 
 scrypt_test_() ->
-    {inparallel, test_internal(port) ++ test_internal(nif)}.
+    {timeout,
+     20,
+     {inparallel, test_internal(port) ++ test_internal(nif)}}.
 
 test_internal(Type) ->
-    [{list_to_binary(io_lib:format("[~p] ~p. '~s'/'~s'",
+    [{timeout, 20, {list_to_binary(io_lib:format("[~p] ~p. '~s'/'~s'",
                                    [Type,Id,Passwd,Salt])),
       test_body_fun(Type, Id, Passwd, Salt,
                     if Type == nif -> [nif|Params]; true -> Params end,
-                    Result)}
+                    Result)}}
      || {Id,{[Passwd,Salt|_] = Params, Result}}
         <- lists:zip(lists:seq(1,length(?TESTS)),?TESTS)].
 
