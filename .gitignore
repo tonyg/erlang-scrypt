@@ -9,3 +9,6 @@ ebin/
 c_src/*.o
 priv/
 c_src/dummy/
+/_build
+/rebar.lock
+
