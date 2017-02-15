@@ -5,6 +5,6 @@
             stdlib
         ]},
         {description, "Erlang port driver for Colin Percival's scrypt."},
-        {modules, [erlscrypt]},
+        {mod, {erlscrypt, []}},
         {vsn, "1.2.0"}
     ]}.
