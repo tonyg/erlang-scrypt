@@ -1,5 +1,6 @@
 *.pdb
 _build*
+c_src/*.o
 erl_crash.dump
 priv/
 rebar.lock
