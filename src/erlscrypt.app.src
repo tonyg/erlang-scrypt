@@ -1,10 +1,10 @@
 {application, erlscrypt,
     [
+        {description, "Erlang port driver for Colin Percival's scrypt."},
+        {vsn, "1.2.0"},
         {applications, [
             kernel,
             stdlib
         ]},
-        {description, "Erlang port driver for Colin Percival's scrypt."},
-        {mod, {erlscrypt, []}},
-        {vsn, "1.2.0"}
+        {mod, {erlscrypt, []}}
     ]}.
