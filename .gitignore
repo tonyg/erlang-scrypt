@@ -1,3 +1,4 @@
+*.swp
 *.pdb
 _build*
 c_src/*.o
