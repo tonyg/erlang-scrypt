@@ -1,8 +1,0 @@
-%% -*- mode: erlang; -*-
-case erlang:function_exported(rebar3, main, 1) of
-    true -> % rebar3
-        CONFIG;
-    false -> % rebar 2.x or older
-        %% remove plugins and provider_hooks, which are rebar3 things
-        lists:keydelete(provider_hooks, 1, lists:keydelete(plugins, 1, CONFIG))
-end.
