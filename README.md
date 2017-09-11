@@ -13,7 +13,7 @@ scrypt](http://www.tarsnap.com/scrypt.html).
 
 The entry points are `erlscrypt:scrypt/6` and `erlscrypt:scrypt/7`.
 
-##erlscrypt:scrypt([nif], Passwd, Salt, N, R, P, Buflen)
+## erlscrypt:scrypt([nif], Passwd, Salt, N, R, P, Buflen)
 
 Atom `nif` can be passed as optional first parameter to gain some marginal speed over
 port.
