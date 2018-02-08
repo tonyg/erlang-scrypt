@@ -1,5 +1,11 @@
-scratch/
-.eunit/
-priv/scrypt
+*.swp
+*.pdb
+_build*
+c_src/*.o
 erl_crash.dump
-ebin/
+priv/
+rebar.lock
+rebar3.crashdump
+test/*.beam
+tmp
+.rebar3/

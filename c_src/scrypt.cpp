@@ -26,8 +26,6 @@
  * This file was originally written by Colin Percival as part of the Tarsnap
  * online backup system.
  */
-#include "scrypt_platform.h"
-
 #include <errno.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -36,7 +34,7 @@
 #include "sha256.h"
 #include "sysendian.h"
 
-#include "crypto_scrypt.h"
+#include "scrypt.h"
 
 static void blkcpy(uint8_t *, uint8_t *, size_t);
 static void blkxor(uint8_t *, uint8_t *, size_t);
@@ -247,11 +245,11 @@ crypto_scrypt(const uint8_t * passwd, size_t passwdlen,
 	}
 
 	/* Allocate memory. */
-	if ((B = malloc(128 * r * p)) == NULL)
+	if ((B = (uint8_t*)malloc(128 * r * p)) == NULL)
 		goto err0;
-	if ((XY = malloc(256 * r)) == NULL)
+	if ((XY = (uint8_t*)malloc(256 * r)) == NULL)
 		goto err1;
-	if ((V = malloc(128 * r * N)) == NULL)
+	if ((V = (uint8_t*)malloc(128 * r * N)) == NULL)
 		goto err2;
 
 	/* 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen) */

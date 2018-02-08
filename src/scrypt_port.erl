@@ -3,31 +3,26 @@
 -behaviour(gen_server).
 
 -export([start_link/0, scrypt/6]).
--export([init/1, terminate/2, code_change/3, handle_call/3, handle_cast/2, handle_info/2]).
+-export([init/1, terminate/2, code_change/3, handle_call/3, handle_cast/2,
+         handle_info/2]).
 
-%%---------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
--spec scrypt(binary(), binary(), pos_integer(), pos_integer(), pos_integer(), pos_integer()) -> binary().
+-spec scrypt(binary(), binary(), pos_integer(), pos_integer(), pos_integer(),
+             pos_integer()) -> binary().
 scrypt(Passwd, Salt, N, R, P, Buflen) ->
     gen_server:call(?MODULE, {scrypt, Passwd, Salt, N, R, P, Buflen}, infinity).
 
-%%---------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 -record(state, {port :: port()}).
 
-priv_dir() ->
-    case code:priv_dir(scrypt) of
-        {error, bad_name} ->
-            filename:join(filename:dirname(filename:dirname(code:which(?MODULE))), "priv");
-        D ->
-            D
-    end.
-
 init([]) ->
-    {ok, #state{port = open_port({spawn, priv_dir() ++ "/scrypt"},
+    {ok, #state{port = open_port({spawn_executable,
+                                  erlscrypt:priv_dir() ++ "/scrypt"},
                                  [{packet, 4}, binary, use_stdio])}}.
 
 terminate(_Reason, _State = #state{port = Port}) ->
@@ -38,9 +33,10 @@ terminate(_Reason, _State = #state{port = Port}) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-handle_call({scrypt, Passwd, Salt, N, R, P, Buflen}, _From, State = #state{port = Port}) ->
-    port_command(Port, <<(size(Passwd)):32, (size(Salt)):32, N:32, R:32, P:32, Buflen:32,
-                         Passwd/binary, Salt/binary>>),
+handle_call({scrypt, Passwd, Salt, N, R, P, Buflen}, _From,
+            State = #state{port = Port}) ->
+    port_command(Port, <<(size(Passwd)):32, (size(Salt)):32, N:32, R:32, P:32,
+                         Buflen:32, Passwd/binary, Salt/binary>>),
     receive
         {Port, {data, Buf}} ->
             if
